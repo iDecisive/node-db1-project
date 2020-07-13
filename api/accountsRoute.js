@@ -5,7 +5,6 @@ const db = require('../data/dbConfig.js');
 const router = express.Router();
 
 router.post('/', (req, res) => {
-
 	db('accounts')
 		.insert(req.body, 'id')
 		.then((id) => {
@@ -29,14 +28,31 @@ router.get('/', (req, res) => {
 		});
 });
 
-router.put('/:id', (req, res) => {});
-
-router.delete('/:id', (req, res) => {
-	db('accounts').where({ id: req.params.id }).del().then(() => {
-        res.json({ message: 'Deleted' });
-    }).catch(err => {
+router.put('/:id', (req, res) => {
+    db('accounts').where({ id: req.params.id })
+    .update(req.body)
+    .then(count => {
+        if(count > 0){
+            res.status(200).json({message: 'Account was updated'});
+        } else {
+            res.status(404).json({message: 'Account not found'})
+        }
+    })
+    .catch(err => {
         res.status(500).json({error: err});
     });
+});
+
+router.delete('/:id', (req, res) => {
+	db('accounts')
+		.where({ id: req.params.id })
+		.del()
+		.then(() => {
+			res.json({ message: 'Deleted' });
+		})
+		.catch((err) => {
+			res.status(500).json({ error: err });
+		});
 });
 
 module.exports = router;
